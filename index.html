@@ -1,260 +1,260 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Драфт-помощник — Dota 2</title>
-<style>
-:root{--bg:#0d0f13;--p:#151a21;--p2:#1b212b;--ln:#273040;--ink:#ece6d4;--mute:#8f9ab0;--gold:#e5b44c;--rad:#7ccb68;--dire:#e4604a;--r:12px}
-*{box-sizing:border-box}
-body{margin:0;color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif;min-height:100vh;
-background:radial-gradient(900px 400px at 85% -10%,#3a1a14 0,transparent 70%),radial-gradient(800px 400px at 5% -5%,#15301b 0,transparent 65%),var(--bg)}
-.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
-h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0;letter-spacing:.2px}
-h1{font-size:34px}.sub{color:var(--mute);margin:2px 0 18px;max-width:62ch}
-.panel{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--ln);border-radius:var(--r);padding:14px 16px}
-.setup{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
-.f{display:flex;flex-direction:column;gap:5px}.f>span{font-size:12px;color:var(--mute)}
-input[type=text],select{background:#0c0f14;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:9px 11px;font:inherit}
-button{font:inherit;color:var(--ink);background:#0c0f14;border:1px solid var(--ln);border-radius:8px;padding:9px 13px;cursor:pointer;transition:.15s}
-button:hover{border-color:#44516b}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.roles{display:flex;gap:6px}.roles button{width:42px;padding:9px 0;font-weight:700}
-.roles button.on{background:var(--gold);color:#2a1d02;border-color:var(--gold)}
-.chk{display:flex;gap:8px;align-items:center;color:var(--mute);font-size:13.5px;padding-bottom:9px}
-.teams{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:860px){.teams{grid-template-columns:1fr}}
-.team{cursor:pointer;transition:.2s}
-.team.on.e{border-color:var(--dire);box-shadow:0 0 0 1px var(--dire),0 8px 30px -12px var(--dire)}
-.team.on.a{border-color:var(--rad);box-shadow:0 0 0 1px var(--rad),0 8px 30px -12px var(--rad)}
-.team h2{font-size:18px;display:flex;justify-content:space-between;align-items:baseline}
-.team.e h2{color:var(--dire)}.team.a h2{color:var(--rad)}
-.team h2 small{font:13px "Segoe UI";color:var(--mute)}
-.slots{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.slot{position:relative;width:118px;min-height:84px;border-radius:9px;border:1px dashed var(--ln);background:#0c0f14;padding:0;overflow:hidden;color:var(--mute);font-size:12px;text-align:center}
-.slot.fill{border-style:solid;color:var(--ink)}.team.e .slot.fill{border-color:#7a3226}.team.a .slot.fill{border-color:#3d6a32}
-.slot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.slot b{display:block;font-weight:500;padding:3px 2px;font-size:12px}
-.slot .x{position:absolute;top:3px;right:3px;padding:0 7px;line-height:20px;background:#000a;border:0;border-radius:6px;font-size:15px}
-.slot select{width:100%;border:0;border-top:1px solid var(--ln);border-radius:0;padding:3px;font-size:12px;background:#0c0f14;color:var(--gold)}
-.slot.me{border-style:solid;border-color:var(--gold);display:flex;flex-direction:column;justify-content:center;gap:2px;color:var(--gold);cursor:default}
-.slot.me strong{font:700 22px Georgia}
-.cta{display:flex;justify-content:center;margin:16px 0}
-.go{background:linear-gradient(180deg,#f0c35e,#d19b2c);color:#2a1d02;border:0;font-weight:700;font-size:17px;padding:13px 44px;border-radius:10px;box-shadow:0 10px 30px -10px #e5b44c99}
-.go:hover{filter:brightness(1.08)}.go:disabled{opacity:.55;cursor:wait}
-.picker .bar{display:flex;gap:10px;margin-bottom:10px}.picker input{flex:1}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:7px;max-height:340px;overflow:auto;padding:2px}
-.tile{position:relative;padding:0;border:2px solid transparent;border-radius:8px;background:#0c0f14;overflow:hidden;text-align:center}
-.tile:hover{transform:translateY(-2px)}
-.tile img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.tile span{display:block;font-size:11.5px;line-height:1.2;padding:3px 2px;min-height:2.6em}
-.tile.e{border-color:var(--dire)}.tile.a{border-color:var(--rad)}.tile.dim{opacity:.3;cursor:not-allowed}.tile.role{box-shadow:inset 0 -3px 0 var(--gold)}
-.notice{margin:14px 0 0;padding:11px 14px;border-radius:9px;background:#33201c;border:1px solid #6b3228}
-.warn{color:#e8c46f;font-size:13.5px;margin:8px 0 0}
-.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin:14px 0}
-.card{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--ln);border-radius:var(--r);overflow:hidden}
-.card.meta{border-color:#6e5520}
-.ban{position:relative}.ban img{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;object-position:center 22%}
-.ban:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#151a21 2%,transparent 70%)}
-.badge{position:absolute;z-index:1;top:10px;left:10px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#102a14dd;color:var(--rad);border:1px solid #2f6a2a}
-.meta .badge{background:#2d2208dd;color:var(--gold);border-color:#7a5d1a}
-.ban h3{position:absolute;z-index:1;left:14px;bottom:8px;font-size:24px}
-.cb{padding:4px 16px 16px}
-.wr{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px}.wr b{font:700 30px Georgia}.wr span{color:var(--mute);font-size:12.5px}
-.meter{position:relative;height:8px;border-radius:9px;background:#0b0e13;border:1px solid var(--ln);margin-bottom:12px}
-.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:9px}.meter u{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#8f9ab0aa}
-.sec{margin-top:12px}.sec h4{margin:0 0 6px;font:600 12px "Segoe UI";color:var(--mute);text-transform:none}
-.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:#0c0f14;border:1px solid var(--ln);border-radius:8px;padding:3px 9px;font-size:13px}
-.mrow{display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:center;margin:5px 0}
-.mrow img{width:30px;height:30px;object-fit:cover;border-radius:6px}.mrow .t{font-size:13px;color:var(--mute)}
-.mrow .t b{color:var(--ink);font-weight:600}.bar{position:relative;height:6px;background:#0b0e13;border-radius:6px;margin-top:3px}
-.bar i{position:absolute;top:0;bottom:0;border-radius:6px}.bar u{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#8f9ab088}
-.pos{color:var(--rad)}.neg{color:var(--dire)}.mu{color:var(--mute);font-size:13.5px}.w{color:#e8c46f;font-size:13px;margin:4px 0 0}
-.why{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}.why span{background:#2d2208;color:var(--gold);border:1px solid #7a5d1a;border-radius:99px;padding:2px 10px;font-size:12.5px}
-details{margin-top:12px;border-top:1px solid var(--ln);padding-top:8px}summary{cursor:pointer;color:var(--gold);font-size:13.5px}
-.pt{display:grid;grid-template-columns:1fr 70px 70px;gap:5px;align-items:center;margin:6px 0;font-size:13px}.pt input{width:100%;padding:5px 7px}
-.ft{color:var(--mute);font-size:12.5px;margin-top:10px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>Драфт-помощник</h1>
-  <p class="sub">Собери драфт, укажи позицию и получи три совета: два героя из твоего пула, которые заходят против этих врагов, и один сильный мета-пик.</p>
+<!DOCTYPE html> 
+<html lang="ru"> 
+<head> 
+<meta charset="utf-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<title>Драфт-помощник — Dota 2</title> 
+<style> 
+:root{--bg:#0d0f13;--p:#151a21;--p2:#1b212b;--ln:#273040;--ink:#ece6d4;--mute:#8f9ab0;--gold:#e5b44c;--rad:#7ccb68;--dire:#e4604a;--r:12px} 
+*{box-sizing:border-box} 
+body{margin:0;color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif;min-height:100vh; 
+background:radial-gradient(900px 400px at 85% -10%,#3a1a14 0,transparent 70%),radial-gradient(800px 400px at 5% -5%,#15301b 0,transparent 65%),var(--bg)} 
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px} 
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0;letter-spacing:.2px} 
+h1{font-size:34px}.sub{color:var(--mute);margin:2px 0 18px;max-width:62ch} 
+.panel{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--ln);border-radius:var(--r);padding:14px 16px} 
+.setup{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px} 
+.f{display:flex;flex-direction:column;gap:5px}.f>span{font-size:12px;color:var(--mute)} 
+input[type=text],select{background:#0c0f14;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:9px 11px;font:inherit} 
+button{font:inherit;color:var(--ink);background:#0c0f14;border:1px solid var(--ln);border-radius:8px;padding:9px 13px;cursor:pointer;transition:.15s} 
+button:hover{border-color:#44516b} 
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px} 
+.roles{display:flex;gap:6px}.roles button{width:42px;padding:9px 0;font-weight:700} 
+.roles button.on{background:var(--gold);color:#2a1d02;border-color:var(--gold)} 
+.chk{display:flex;gap:8px;align-items:center;color:var(--mute);font-size:13.5px;padding-bottom:9px} 
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:14px} 
+@media(max-width:860px){.teams{grid-template-columns:1fr}} 
+.team{cursor:pointer;transition:.2s} 
+.team.on.e{border-color:var(--dire);box-shadow:0 0 0 1px var(--dire),0 8px 30px -12px var(--dire)} 
+.team.on.a{border-color:var(--rad);box-shadow:0 0 0 1px var(--rad),0 8px 30px -12px var(--rad)} 
+.team h2{font-size:18px;display:flex;justify-content:space-between;align-items:baseline} 
+.team.e h2{color:var(--dire)}.team.a h2{color:var(--rad)} 
+.team h2 small{font:13px "Segoe UI";color:var(--mute)} 
+.slots{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap} 
+.slot{position:relative;width:118px;min-height:84px;border-radius:9px;border:1px dashed var(--ln);background:#0c0f14;padding:0;overflow:hidden;color:var(--mute);font-size:12px;text-align:center} 
+.slot.fill{border-style:solid;color:var(--ink)}.team.e .slot.fill{border-color:#7a3226}.team.a .slot.fill{border-color:#3d6a32} 
+.slot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.slot b{display:block;font-weight:500;padding:3px 2px;font-size:12px} 
+.slot .x{position:absolute;top:3px;right:3px;padding:0 7px;line-height:20px;background:#000a;border:0;border-radius:6px;font-size:15px} 
+.slot select{width:100%;border:0;border-top:1px solid var(--ln);border-radius:0;padding:3px;font-size:12px;background:#0c0f14;color:var(--gold)} 
+.slot.me{border-style:solid;border-color:var(--gold);display:flex;flex-direction:column;justify-content:center;gap:2px;color:var(--gold);cursor:default} 
+.slot.me strong{font:700 22px Georgia} 
+.cta{display:flex;justify-content:center;margin:16px 0} 
+.go{background:linear-gradient(180deg,#f0c35e,#d19b2c);color:#2a1d02;border:0;font-weight:700;font-size:17px;padding:13px 44px;border-radius:10px;box-shadow:0 10px 30px -10px #e5b44c99} 
+.go:hover{filter:brightness(1.08)}.go:disabled{opacity:.55;cursor:wait} 
+.picker .bar{display:flex;gap:10px;margin-bottom:10px}.picker input{flex:1} 
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:7px;max-height:340px;overflow:auto;padding:2px} 
+.tile{position:relative;padding:0;border:2px solid transparent;border-radius:8px;background:#0c0f14;overflow:hidden;text-align:center} 
+.tile:hover{transform:translateY(-2px)} 
+.tile img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.tile span{display:block;font-size:11.5px;line-height:1.2;padding:3px 2px;min-height:2.6em} 
+.tile.e{border-color:var(--dire)}.tile.a{border-color:var(--rad)}.tile.dim{opacity:.3;cursor:not-allowed}.tile.role{box-shadow:inset 0 -3px 0 var(--gold)} 
+.notice{margin:14px 0 0;padding:11px 14px;border-radius:9px;background:#33201c;border:1px solid #6b3228} 
+.warn{color:#e8c46f;font-size:13.5px;margin:8px 0 0} 
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin:14px 0} 
+.card{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--ln);border-radius:var(--r);overflow:hidden} 
+.card.meta{border-color:#6e5520} 
+.ban{position:relative}.ban img{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;object-position:center 22%} 
+.ban:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#151a21 2%,transparent 70%)} 
+.badge{position:absolute;z-index:1;top:10px;left:10px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#102a14dd;color:var(--rad);border:1px solid #2f6a2a} 
+.meta .badge{background:#2d2208dd;color:var(--gold);border-color:#7a5d1a} 
+.ban h3{position:absolute;z-index:1;left:14px;bottom:8px;font-size:24px} 
+.cb{padding:4px 16px 16px} 
+.wr{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px}.wr b{font:700 30px Georgia}.wr span{color:var(--mute);font-size:12.5px} 
+.meter{position:relative;height:8px;border-radius:9px;background:#0b0e13;border:1px solid var(--ln);margin-bottom:12px} 
+.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:9px}.meter u{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#8f9ab0aa} 
+.sec{margin-top:12px}.sec h4{margin:0 0 6px;font:600 12px "Segoe UI";color:var(--mute);text-transform:none} 
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:#0c0f14;border:1px solid var(--ln);border-radius:8px;padding:3px 9px;font-size:13px} 
+.mrow{display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:center;margin:5px 0} 
+.mrow img{width:30px;height:30px;object-fit:cover;border-radius:6px}.mrow .t{font-size:13px;color:var(--mute)} 
+.mrow .t b{color:var(--ink);font-weight:600}.bar{position:relative;height:6px;background:#0b0e13;border-radius:6px;margin-top:3px} 
+.bar i{position:absolute;top:0;bottom:0;border-radius:6px}.bar u{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#8f9ab088} 
+.pos{color:var(--rad)}.neg{color:var(--dire)}.mu{color:var(--mute);font-size:13.5px}.w{color:#e8c46f;font-size:13px;margin:4px 0 0} 
+.why{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}.why span{background:#2d2208;color:var(--gold);border:1px solid #7a5d1a;border-radius:99px;padding:2px 10px;font-size:12.5px} 
+details{margin-top:12px;border-top:1px solid var(--ln);padding-top:8px}summary{cursor:pointer;color:var(--gold);font-size:13.5px} 
+.pt{display:grid;grid-template-columns:1fr 70px 70px;gap:5px;align-items:center;margin:6px 0;font-size:13px}.pt input{width:100%;padding:5px 7px} 
+.ft{color:var(--mute);font-size:12.5px;margin-top:10px} 
+</style> 
+</head> 
+<body> 
+<div class="wrap"> 
+  <h1>Драфт-помощник</h1> 
+  <p class="sub">Собери драфт, укажи позицию и получи три совета: два героя из твоего пула, которые заходят против этих врагов, и один сильный мета-пик.</p> 
 
-  <section class="panel setup">
-    <label class="f"><span>Steam ID</span><input type="text" id="acc" inputmode="numeric" placeholder="32 или 64 бита" style="width:210px"></label>
-    <div class="f"><span>Моя позиция</span><div class="roles" id="roles"><button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button></div></div>
-    <label class="f"><span>Анализировать матчей</span><select id="mt"><option>50</option><option>75</option><option selected>100</option></select></label>
-    <label class="chk"><input type="checkbox" id="wm" checked> добавить мета-пик (2 из пула + 1 лучший по драфту)</label>
-  </section>
+  <section class="panel setup"> 
+    <label class="f"><span>Steam ID</span><input type="text" id="acc" inputmode="numeric" placeholder="32 или 64 бита" style="width:210px"></label> 
+    <div class="f"><span>Моя позиция</span><div class="roles" id="roles"><button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button></div></div> 
+    <label class="f"><span>Анализировать матчей</span><select id="mt"><option>50</option><option>75</option><option selected>100</option></select></label> 
+    <label class="chk"><input type="checkbox" id="wm" checked> добавить мета-пик (2 из пула + 1 лучший по драфту)</label> 
+  </section> 
 
-  <p class="mu" style="margin:0 0 8px">Не знаешь весь драфт, это нормально: отметь тех, кого уже видишь (например, 4 врага, если ты пикаешь последним). Под каждым героем выбери его позицию.</p>
-  <section class="teams">
-    <div class="panel team e on" id="tE"><h2>Враги <small id="cE">0/5</small></h2><div class="slots" id="sE"></div></div>
-    <div class="panel team a" id="tA"><h2>Моя команда <small id="cA">0/4</small></h2><div class="slots" id="sA"></div></div>
-  </section>
-  <div class="cta"><button class="go" id="go">Подобрать героев</button></div>
+  <p class="mu" style="margin:0 0 8px; color:var(--gold);">Выбирай только тех, кого уже видишь! (Например: оставь пусто на фёрстпик, выбери 2 врага во второй стадии или 4 врага на ластпик).</p> 
+  <section class="teams"> 
+    <div class="panel team e on" id="tE"><h2>Враги <small id="cE">0/5</small></h2><div class="slots" id="sE"></div></div> 
+    <div class="panel team a" id="tA"><h2>Моя команда <small id="cA">0/4</small></h2><div class="slots" id="sA"></div></div> 
+  </section> 
+  <div class="cta"><button class="go" id="go">Подобрать героев</button></div> 
 
-  <section class="panel picker">
-    <div class="bar"><input type="text" id="q" placeholder="Найти героя по-русски или по-английски" aria-label="Поиск героя"></div>
-    <div class="mu" id="hint" style="margin-bottom:8px"></div>
-    <div class="grid" id="grid"></div>
-  </section>
+  <section class="panel picker"> 
+    <div class="bar"><input type="text" id="q" placeholder="Найти героя по-русски или по-английски" aria-label="Поиск героя"></div> 
+    <div class="mu" id="hint" style="margin-bottom:8px"></div> 
+    <div class="grid" id="grid"></div> 
+  </section> 
 
-  <div id="out"></div>
-</div>
+  <div id="out"></div> 
+</div> 
 
-<script>
-const IMG = s => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${s}.png`;
-const S = {heroes: [], byId: {}, enemies: [], allies: [], pos: {}, mode: 'enemies', role: null, cfg: {}, q: ''};
-const LIM = {enemies: 5, allies: 4};
-const $ = id => document.getElementById(id);
-const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x !== undefined) e.textContent = x; return e; };
-const pp = v => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + ' п.п.';
-const img = s => { const i = el('img'); i.src = IMG(s); i.alt = ''; i.loading = 'lazy'; i.onerror = () => i.style.visibility = 'hidden'; return i; };
-const byRu = n => S.heroes.find(h => h.ru === n);
+<script> 
+const IMG = s => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${s}.png`; 
+const S = {heroes: [], byId: {}, enemies: [], allies: [], pos: {}, mode: 'enemies', role: null, cfg: {}, q: ''}; 
+const LIM = {enemies: 5, allies: 4}; 
+const $ = id => document.getElementById(id); 
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x !== undefined) e.textContent = x; return e; }; 
+const pp = v => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + ' п.п.'; 
+const img = s => { const i = el('img'); i.src = IMG(s); i.alt = ''; i.loading = 'lazy'; i.onerror = () => i.style.visibility = 'hidden'; return i; }; 
+const byRu = n => S.heroes.find(h => h.ru === n); 
 
-function nextPos(list, id) {   // первая свободная позиция 1-5 (для союзников без своей)
-  const used = list.filter(x => x !== id).map(x => S.pos[x]);
-  return [1, 2, 3, 4, 5].find(n => !used.includes(n) && !(S.mode === 'allies' && n === S.role)) || 1;
-}
-function setMode(m) {
-  S.mode = m; $('tE').classList.toggle('on', m === 'enemies'); $('tA').classList.toggle('on', m === 'allies'); render();
-}
-$('tE').onclick = () => setMode('enemies'); $('tA').onclick = () => setMode('allies');
+function nextPos(list, id) {   // первая свободная позиция 1-5 (для союзников без своей) 
+  const used = list.filter(x => x !== id).map(x => S.pos[x]); 
+  return [1, 2, 3, 4, 5].find(n => !used.includes(n) && !(S.mode === 'allies' && n === S.role)) || 1; 
+} 
+function setMode(m) { 
+  S.mode = m; $('tE').classList.toggle('on', m === 'enemies');$('tA').classList.toggle('on', m === 'allies'); render(); 
+} 
+$('tE').onclick = () => setMode('enemies');$('tA').onclick = () => setMode('allies'); 
 
-function slots(box, list, n, me) {
-  box.textContent = '';
-  for (let i = 0; i < n; i++) {
-    const h = S.byId[list[i]], b = el('div', 'slot' + (h ? ' fill' : ''));
-    if (h) {
-      const x = el('button', 'x', '×'), sel = el('select'); x.title = 'Убрать: ' + h.ru;
-      x.onclick = e => { e.stopPropagation(); list.splice(i, 1); render(); };
-      [1, 2, 3, 4, 5].forEach(n => { const o = el('option', '', 'поз. ' + n); o.value = n; sel.append(o); });
-      sel.value = S.pos[h.id] || 1; sel.title = 'Позиция этого героя в игре';
-      sel.onchange = () => { S.pos[h.id] = +sel.value; }; sel.onclick = e => e.stopPropagation();
-      b.append(img(h.slug), x, el('b', '', h.ru), sel);
-    } else b.textContent = '+';
-    box.append(b);
-  }
-  if (me) { const m = el('div', 'slot me'); m.append(el('span', '', 'Ты'), el('strong', '', S.role ? 'поз. ' + S.role : '?')); box.append(m); }
-}
+function slots(box, list, n, me) { 
+  box.textContent = ''; 
+  for (let i = 0; i < n; i++) { 
+    const h = S.byId[list[i]], b = el('div', 'slot' + (h ? ' fill' : '')); 
+    if (h) { 
+      const x = el('button', 'x', '×'), sel = el('select'); x.title = 'Убрать: ' + h.ru; 
+      x.onclick = e => { e.stopPropagation(); list.splice(i, 1); render(); }; 
+      [1, 2, 3, 4, 5].forEach(n => { const o = el('option', '', 'поз. ' + n); o.value = n; sel.append(o); }); 
+      sel.value = S.pos[h.id] || 1; sel.title = 'Позиция этого героя в игре'; 
+      sel.onchange = () => { S.pos[h.id] = +sel.value; }; sel.onclick = e => e.stopPropagation(); 
+      b.append(img(h.slug), x, el('b', '', h.ru), sel); 
+    } else b.textContent = '+'; 
+    box.append(b); 
+  } 
+  if (me) { const m = el('div', 'slot me'); m.append(el('span', '', 'Ты'), el('strong', '', S.role ? 'поз. ' + S.role : '?')); box.append(m); } 
+} 
 
-function grid() {
-  const g = $('grid'); g.textContent = '';
-  const q = S.q.trim().toLowerCase(), other = S.mode === 'enemies' ? 'allies' : 'enemies';
-  for (const h of S.heroes) {
-    if (q && !(h.en.toLowerCase().includes(q) || h.ru.toLowerCase().includes(q))) continue;
-    const e = S.enemies.includes(h.id), a = S.allies.includes(h.id);
-    const full = S[S.mode].length >= LIM[S.mode] && !e && !a;
-    const b = el('button', 'tile' + (e ? ' e' : '') + (a ? ' a' : '') + (S[other].includes(h.id) || full ? ' dim' : '') + (S.role && h.roles.includes(S.role) ? ' role' : ''));
-    b.title = h.ru + (h.roles.length ? ' — позиции: ' + h.roles.join(', ') : '');
-    b.append(img(h.slug), el('span', '', h.ru));
-    b.onclick = () => {
-      if (S[other].includes(h.id)) return;
-      const l = S[S.mode], i = l.indexOf(h.id);
-      if (i >= 0) l.splice(i, 1); else if (l.length < LIM[S.mode]) { l.push(h.id); S.pos[h.id] = nextPos(l, h.id); }
-      render();
-    };
-    g.append(b);
-  }
-}
+function grid() { 
+  const g = $('grid'); g.textContent = ''; 
+  const q = S.q.trim().toLowerCase(), other = S.mode === 'enemies' ? 'allies' : 'enemies'; 
+  for (const h of S.heroes) { 
+    if (q && !(h.en.toLowerCase().includes(q) || h.ru.toLowerCase().includes(q))) continue; 
+    const e = S.enemies.includes(h.id), a = S.allies.includes(h.id); 
+    const full = S[S.mode].length >= LIM[S.mode] && !e && !a; 
+    const b = el('button', 'tile' + (e ? ' e' : '') + (a ? ' a' : '') + (S[other].includes(h.id) || full ? ' dim' : '') + (S.role && h.roles.includes(S.role) ? ' role' : '')); 
+    b.title = h.ru + (h.roles.length ? ' — позиции: ' + h.roles.join(', ') : ''); 
+    b.append(img(h.slug), el('span', '', h.ru)); 
+    b.onclick = () => { 
+      if (S[other].includes(h.id)) return; 
+      const l = S[S.mode], i = l.indexOf(h.id); 
+      if (i >= 0) l.splice(i, 1); else if (l.length < LIM[S.mode]) { l.push(h.id); S.pos[h.id] = nextPos(l, h.id); } 
+      render(); 
+    }; 
+    g.append(b); 
+  } 
+} 
 
-function render() {
-  slots($('sE'), S.enemies, 5, false); slots($('sA'), S.allies, 4, true);
-  $('cE').textContent = S.enemies.length + '/5'; $('cA').textContent = S.allies.length + '/4';
-  $('hint').textContent = (S.mode === 'enemies' ? 'Добавляешь врагов' : 'Добавляешь союзников (без себя)') + ' — нажми героя, повторное нажатие уберёт. Золотая полоска = подходит твоей позиции.';
-  grid();
-}
+function render() { 
+  slots($('sE'), S.enemies, 5, false); slots($('sA'), S.allies, 4, true);$('cE').textContent = S.enemies.length + '/5'; $('cA').textContent = S.allies.length + '/4';$('hint').textContent = (S.mode === 'enemies' ? 'Добавляешь врагов' : 'Добавляешь союзников (без себя)') + ' — можно выбрать меньше 5! Золотая полоска = подходит твоей позиции.'; 
+  grid(); 
+} 
 
-document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
-  S.role = +b.dataset.r; document.querySelectorAll('[data-r]').forEach(x => x.classList.toggle('on', x === b)); render();
-});
-$('q').oninput = e => { S.q = e.target.value; grid(); };
-$('acc').value = localStorage.getItem('acc') || '';
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { 
+  S.role = +b.dataset.r; document.querySelectorAll('[data-r]').forEach(x => x.classList.toggle('on', x === b)); render(); 
+}); 
+$('q').oninput = e => { S.q = e.target.value; grid(); }; 
 
-function synLine(c, r) {
-  if (!S.allies.length) return null;
-  if (['NO_TOKEN', 'FAILED'].includes(r.synergy_status)) return 'Синергия отключена: ' + r.synergy_detail;
-  if (c.synergies.length) return c.synergies.map(s => `${s.ally_name}: ${pp(s.advantage)} (${s.games} игр)`).join(' · ') + (c.synergy_missing.length ? ` · нет данных: ${c.synergy_missing.join(', ')}` : '');
-  return 'Нет данных по: ' + c.synergy_missing.join(', ');
-}
+// Здесь твой ID стоит по умолчанию, а если ты введешь другой, он его запомнит
+$('acc').value = localStorage.getItem('acc') || '76561199065337760'; 
 
-function card(c, r) {
-  const k = S.cfg, d = el('div', 'card ' + c.kind), ban = el('div', 'ban');
-  ban.append(img(c.slug), el('span', 'badge', c.kind === 'pool' ? 'Из твоего пула' : 'Мета-пик'), el('h3', '', c.name));
-  const b = el('div', 'cb');
-  if (c.expected_wr !== null) {
-    const w = c.expected_wr * 100, wr = el('div', 'wr'), m = el('div', 'meter'), f = el('i');
-    wr.append(el('b', '', w.toFixed(1) + '%'), el('span', '', `ожидаемый WR против этого драфта · средний у героя ${(c.base_wr * 100).toFixed(1)}%`));
-    const pct = Math.max(2, Math.min(98, 50 + (w - 50) * 5));   // шкала 40–60%
-    f.style.width = pct + '%'; f.style.background = w >= 50 ? 'var(--rad)' : 'var(--dire)'; m.append(f, el('u'));
-    b.append(wr, m);
-  } else b.append(el('div', 'mu', 'Враги не выбраны: оценка по твоей форме и силе героя'));
-  const fs = el('div', 'sec'); fs.append(el('h4', '', 'Твоя форма'));
-  if (c.form_games > 0) { const ch = el('div', 'chips'); [`${c.form_games} игр`, `WR ${Math.round(c.form_wr * 100)}%`, `KDA ${c.form_kda.toFixed(1)}`, `балл ${c.form_score.toFixed(2)}`].forEach(t => ch.append(el('span', 'chip', t))); fs.append(ch); }
-  else fs.append(el('div', 'mu', 'Нет практики на этом герое в последних матчах'));
-  b.append(fs);
-  if (c.matchups.length) {
-    const ms = [...c.matchups].sort((a, b) => b.advantage - a.advantage), s = el('div', 'sec'); s.append(el('h4', '', 'Против врагов'));
-    ms.forEach(m => {
-      const row = el('div', 'mrow'), h = byRu(m.enemy_name), t = el('div'), bar = el('div', 'bar'), fl = el('i');
-      row.append(h ? img(h.slug) : el('span'));
-      const x = Math.max(-1, Math.min(1, m.advantage / 0.05)) * 50; fl.style.background = x >= 0 ? 'var(--rad)' : 'var(--dire)';
-      fl.style.left = (x >= 0 ? 50 : 50 + x) + '%'; fl.style.width = Math.abs(x) + '%'; bar.append(fl, el('u'));
-      const tx = el('div', 't'); tx.innerHTML = `<b>${m.enemy_name}</b> · WR ${Math.round(m.raw_wr * 100)}% · <span class="${m.advantage >= 0 ? 'pos' : 'neg'}">${pp(m.advantage)}</span> · ${m.games} игр`;
-      t.append(tx, bar); row.append(t); s.append(row);
-      m.warnings.forEach(w => s.append(el('p', 'w', `${m.enemy_name}: ${w}`)));
-    }); b.append(s);
-  }
-  const sl = synLine(c, r); if (sl) { const s = el('div', 'sec'); s.append(el('h4', '', 'Синергия'), el('div', 'mu', sl)); b.append(s); }
-  c.warnings.forEach(w => b.append(el('p', 'w', w)));
-  const why = [];
-  if (c.form_games > 0 && c.form_score >= k.excellent_form) why.push('отличная форма');
-  if (c.matchups.some(m => m.advantage >= k.strong_adv && m.games >= k.min_matchup_games)) why.push('сильный контрпик');
-  if (c.kind === 'meta') why.push('выбран по драфту, а не по практике');
-  if (why.length) { const w = el('div', 'why'); why.forEach(t => w.append(el('span', '', t))); b.append(w); }
-  if (S.enemies.length) {
-    const det = el('details'), rows = [], res = el('p', 'mu'), g = el('div');
-    det.append(el('summary', '', 'Сверить с Протрекером'), el('p', 'mu', 'Впиши WR и число матчей против каждого врага (роль соперника выбери как в игре).'), g, res);
-    S.enemies.forEach(id => {
-      const w = el('input'), n = el('input'), row = el('div', 'pt'); w.type = n.type = 'number'; w.step = '0.1'; w.placeholder = 'WR %'; n.placeholder = 'игр';
-      row.append(el('span', '', S.byId[id].ru + ' · поз. ' + (S.pos[id] || '?')), w, n); g.append(row); rows.push([w, n]);
-      w.oninput = n.oninput = () => { let sg = 0, sw = 0; rows.forEach(([a, c2]) => { const x = parseFloat(a.value), q = parseFloat(c2.value); if (x > 0 && q > 0) { sg += q; sw += x * q; } });
-        res.textContent = sg ? `По Протрекеру: ${(sw / sg).toFixed(1)}% на ${sg} играх` + (sw / sg < 50 ? ' — ниже 50%, контрпика нет.' : ' — выше 50%.') : ''; };
-    });
-    b.append(det);
-  }
-  d.append(ban, b); return d;
-}
+function synLine(c, r) { 
+  if (!S.allies.length) return null; 
+  if (['NO_TOKEN', 'FAILED'].includes(r.synergy_status)) return 'Синергия отключена: ' + r.synergy_detail; 
+  if (c.synergies.length) return c.synergies.map(s => `${s.ally_name}: ${pp(s.advantage)} (${s.games} игр)`).join(' · ') + (c.synergy_missing.length ? ` · нет данных: ${c.synergy_missing.join(', ')}` : ''); 
+  return 'Нет данных по: ' + c.synergy_missing.join(', '); 
+} 
 
-$('go').onclick = async () => {
-  const out = $('out'); out.textContent = ''; const acc = $('acc').value.trim();
-  const note = t => out.append(el('div', 'notice', t));
-  if (!/^\d{5,20}$/.test(acc)) return note('Введи Steam ID: только цифры (32 или 64 бита).');
-  if (!S.role) return note('Выбери свою позицию от 1 до 5.');
-  localStorage.setItem('acc', acc);
-  const btn = $('go'); btn.disabled = true; btn.textContent = 'Считаю…';
-  try {
-    const resp = await fetch('/api/recommend', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: acc, role: S.role, enemies: S.enemies.map(id => ({id, role: S.pos[id]})), allies: S.allies.map(id => ({id, role: S.pos[id]})), matches: +$('mt').value, with_meta: $('wm').checked})});
-    const r = await resp.json();
-    if (r.error) return note(r.error);
-    if (!r.candidates.length) return note('Подходящих героев на этой позиции нет. Проверь позицию или список ролей в roles.py.');
-    r.warnings.forEach(w => out.append(el('p', 'warn', w)));
-    const box = el('div', 'res'); r.candidates.forEach(c => box.append(card(c, r))); out.append(box);
-    const q = r.contribution, ft = [];
-    if (r.counter_source && S.enemies.length) ft.push('Источник контрпиков: ' + r.counter_source);
-    ft.push(`Вклад в разброс оценок: форма ${Math.round(q.form_share * 100)}%, драфт ${Math.round(q.draft_share * 100)}% (цель 40/60)`);
-    out.append(el('p', 'ft', ft.join(' · '))); out.scrollIntoView({behavior: 'smooth', block: 'start'});
-  } catch (e) { note('Нет связи с локальным сервером. Проверь, что запущен py web.py.'); }
-  finally { btn.disabled = false; btn.textContent = 'Подобрать героев'; }
-};
+function card(c, r) { 
+  const k = S.cfg, d = el('div', 'card ' + c.kind), ban = el('div', 'ban'); 
+  ban.append(img(c.slug), el('span', 'badge', c.kind === 'pool' ? 'Из твоего пула' : 'Мета-пик'), el('h3', '', c.name)); 
+  const b = el('div', 'cb'); 
+  if (c.expected_wr !== null) { 
+    const w = c.expected_wr * 100, wr = el('div', 'wr'), m = el('div', 'meter'), f = el('i'); 
+    wr.append(el('b', '', w.toFixed(1) + '%'), el('span', '', `ожидаемый WR против этого драфта · средний у героя ${(c.base_wr * 100).toFixed(1)}%`)); 
+    const pct = Math.max(2, Math.min(98, 50 + (w - 50) * 5));   // шкала 40–60% 
+    f.style.width = pct + '%'; f.style.background = w >= 50 ? 'var(--rad)' : 'var(--dire)'; m.append(f, el('u')); 
+    b.append(wr, m); 
+  } else b.append(el('div', 'mu', 'Враги не выбраны: оценка только по твоей форме и силе героя')); 
+  const fs = el('div', 'sec'); fs.append(el('h4', '', 'Твоя форма')); 
+  if (c.form_games > 0) { const ch = el('div', 'chips'); [`${c.form_games} игр`, `WR ${Math.round(c.form_wr * 100)}%`, `KDA ${c.form_kda.toFixed(1)}`, `балл ${c.form_score.toFixed(2)}`].forEach(t => ch.append(el('span', 'chip', t))); fs.append(ch); } 
+  else fs.append(el('div', 'mu', 'Нет практики на этом герое в последних матчах')); 
+  b.append(fs); 
+  if (c.matchups.length) { 
+    const ms = [...c.matchups].sort((a, b) => b.advantage - a.advantage), s = el('div', 'sec'); s.append(el('h4', '', 'Против врагов')); 
+    ms.forEach(m => { 
+      const row = el('div', 'mrow'), h = byRu(m.enemy_name), t = el('div'), bar = el('div', 'bar'), fl = el('i'); 
+      row.append(h ? img(h.slug) : el('span')); 
+      const x = Math.max(-1, Math.min(1, m.advantage / 0.05)) * 50; fl.style.background = x >= 0 ? 'var(--rad)' : 'var(--dire)'; 
+      fl.style.left = (x >= 0 ? 50 : 50 + x) + '%'; fl.style.width = Math.abs(x) + '%'; bar.append(fl, el('u')); 
+      const tx = el('div', 't'); tx.innerHTML = `<b>${m.enemy_name}</b> · WR ${Math.round(m.raw_wr * 100)}% · <span class="${m.advantage >= 0 ? 'pos' : 'neg'}">${pp(m.advantage)}</span> · ${m.games} игр`; 
+      t.append(tx, bar); row.append(t); s.append(row); 
+      m.warnings.forEach(w => s.append(el('p', 'w', `${m.enemy_name}: ${w}`))); 
+    }); b.append(s); 
+  } 
+  const sl = synLine(c, r); if (sl) { const s = el('div', 'sec'); s.append(el('h4', '', 'Синергия'), el('div', 'mu', sl)); b.append(s); } 
+  c.warnings.forEach(w => b.append(el('p', 'w', w))); 
+  const why = []; 
+  if (c.form_games > 0 && c.form_score >= k.excellent_form) why.push('отличная форма'); 
+  if (c.matchups.some(m => m.advantage >= k.strong_adv && m.games >= k.min_matchup_games)) why.push('сильный контрпик'); 
+  if (c.kind === 'meta') why.push('выбран по драфту, а не по практике'); 
+  if (why.length) { const w = el('div', 'why'); why.forEach(t => w.append(el('span', '', t))); b.append(w); } 
+  if (S.enemies.length) { 
+    const det = el('details'), rows = [], res = el('p', 'mu'), g = el('div'); 
+    det.append(el('summary', '', 'Сверить с Протрекером'), el('p', 'mu', 'Впиши WR и число матчей против каждого врага (роль соперника выбери как в игре).'), g, res); 
+    S.enemies.forEach(id => { 
+      const w = el('input'), n = el('input'), row = el('div', 'pt'); w.type = n.type = 'number'; w.step = '0.1'; w.placeholder = 'WR %'; n.placeholder = 'игр'; 
+      row.append(el('span', '', S.byId[id].ru + ' · поз. ' + (S.pos[id] || '?')), w, n); g.append(row); rows.push([w, n]); 
+      w.oninput = n.oninput = () => { let sg = 0, sw = 0; rows.forEach(([a, c2]) => { const x = parseFloat(a.value), q = parseFloat(c2.value); if (x > 0 && q > 0) { sg += q; sw += x * q; } }); 
+        res.textContent = sg ? `По Протрекеру: ${(sw / sg).toFixed(1)}% на ${sg} играх` + (sw / sg < 50 ? ' — ниже 50%, контрпика нет.' : ' — выше 50%.') : ''; }; 
+    }); 
+    b.append(det); 
+  } 
+  d.append(ban, b); return d; 
+} 
 
-(async () => {
-  try {
-    const d = await (await fetch('/api/heroes')).json();
-    S.heroes = d.heroes; S.cfg = d.config; d.heroes.forEach(h => S.byId[h.id] = h); render();
-  } catch (e) { $('grid').append(el('div', 'notice', 'Не удалось загрузить героев. Запусти сайт командой py web.py.')); }
-})();
-</script>
-</body>
+$('go').onclick = async () => { 
+  const out = $('out'); out.textContent = ''; const acc =$('acc').value.trim(); 
+  const note = t => out.append(el('div', 'notice', t)); 
+  if (!/^\d{5,20}$/.test(acc)) return note('Введи Steam ID: только цифры (32 или 64 бита).'); 
+  if (!S.role) return note('Выбери свою позицию от 1 до 5.'); 
+  localStorage.setItem('acc', acc); 
+  const btn = $('go'); btn.disabled = true; btn.textContent = 'Считаю…'; 
+  try { 
+    const resp = await fetch('/api/recommend', {method: 'POST', headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify({id: acc, role: S.role, enemies: S.enemies.map(id => ({id, role: S.pos[id]})), allies: S.allies.map(id => ({id, role: S.pos[id]})), matches: +$('mt').value, with_meta:$('wm').checked})}); 
+    const r = await resp.json(); 
+    if (r.error) return note(r.error); 
+    if (!r.candidates.length) return note('Подходящих героев на этой позиции нет. Проверь позицию или список ролей в roles.py.'); 
+    r.warnings.forEach(w => out.append(el('p', 'warn', w))); 
+    const box = el('div', 'res'); r.candidates.forEach(c => box.append(card(c, r))); out.append(box); 
+    const q = r.contribution, ft = []; 
+    if (r.counter_source && S.enemies.length) ft.push('Источник контрпиков: ' + r.counter_source); 
+    ft.push(`Вклад в разброс оценок: форма ${Math.round(q.form_share * 100)}%, драфт ${Math.round(q.draft_share * 100)}% (цель 40/60)`); 
+    out.append(el('p', 'ft', ft.join(' · '))); out.scrollIntoView({behavior: 'smooth', block: 'start'}); 
+  } catch (e) { note('Нет связи с локальным сервером. Проверь, что запущен py web.py.'); } 
+  finally { btn.disabled = false; btn.textContent = 'Подобрать героев'; } 
+}; 
+
+(async () => { 
+  try { 
+    const d = await (await fetch('/api/heroes')).json(); 
+    S.heroes = d.heroes; S.cfg = d.config; d.heroes.forEach(h => S.byId[h.id] = h); render(); 
+  } catch (e) { $('grid').append(el('div', 'notice', 'Не удалось загрузить героев. Запусти сайт командой py web.py.')); } 
+})(); 
+</script> 
+</body> 
 </html>

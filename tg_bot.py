@@ -1,24 +1,23 @@
+import os
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 
-# Сюда вставишь токен от BotFather
-TOKEN = "8841515463:AAH4qnAvLfSzJtPWW4bcWzP6ZBhw5ETcsI4"
-bot = telebot.TeleBot(TOKEN)
+# Бот берет токен из системы (или использует локальный, если переменная не найдена)
+TOKEN = os.environ.get("BOT_TOKEN", "ТВОЙ_ТОКЕН_ДЛЯ_ЛОКАЛЬНОГО_ТЕСТА")
+WEB_APP_URL = "https://dota-draftapp-3.onrender.com"
 
-# Сюда мы потом вставим ссылку на твой сайт, когда закинем его в интернет
-WEB_APP_URL = "https://google.com" # Пока тут гугл для примера
+bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    # Эта кнопка скажет Телеграму открыть окошко с сайтом
     web_app = WebAppInfo(url=WEB_APP_URL)
     btn = KeyboardButton(text="🎮 Открыть Драфт-помощника", web_app=web_app)
     markup.add(btn)
 
     bot.send_message(
         message.chat.id, 
-        "Привет! Жми на кнопку внизу, чтобы выбрать героев:", 
+        "Привет! Нажми на кнопку ниже, чтобы выбрать героев:", 
         reply_markup=markup
     )
 

@@ -1,5 +1,4 @@
-# web.py — локальный сайт для подбора героев (только стандартная библиотека + твои модули).
-# Запуск: py web.py   ->   откроется http://127.0.0.1:8000
+# web.py — сайт + Telegram-бот в одном файле для Render
 import json
 import os
 import threading
@@ -7,15 +6,48 @@ import webbrowser
 from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import telebot
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+
 import config
 from analysis import DotaAnalyzer, select_recommendations
 from api import OpenDotaClient, StratzClient, ApiUnavailableError, PrivateProfileError, EmptyHistoryError
 from utils import convert_id64_to_id32, contribution_report
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-LOCK = threading.Lock()     # кэш и клиенты не потокобезопасны: запросы идут по очереди
+LOCK = threading.Lock()
 ANALYZER = None
 PORT = 8000
+
+
+def run_bot():
+    """Запускает Telegram-бота в фоновом режиме."""
+    token = os.environ.get("BOT_TOKEN")
+    if not token:
+        print("⚠️ BOT_TOKEN не найден в переменной окружения! Бот не запущен.")
+        return
+
+    web_app_url = "https://dota-draftapp-3.onrender.com"
+    bot = telebot.TeleBot(token)
+
+    @bot.message_handler(commands=['start'])
+    def start(message):
+        markup = ReplyKeyboardMarkup(resize_keyboard=True)
+        web_app = WebAppInfo(url=web_app_url)
+        btn = KeyboardButton(text="🎮 Открыть Драфт-помощника", web_app=web_app)
+        markup.add(btn)
+
+        bot.send_message(
+            message.chat.id, 
+            "Привет! Нажми на кнопку ниже, чтобы выбрать героев:", 
+            reply_markup=markup
+        )
+
+    print("🤖 Telegram-бот успешно запущен!")
+    try:
+        bot.infinity_polling()
+    except Exception as e:
+        print(f"❌ Ошибка в работе бота: {e}")
 
 
 def heroes_payload() -> dict:
@@ -39,7 +71,6 @@ def heroes_payload() -> dict:
 
 
 def _entries(items):
-    """[{id, role}] или [id] -> (список id без повторов, {id: роль 1-5})."""
     ids, roles = [], {}
     for x in items or []:
         i = int(x["id"] if isinstance(x, dict) else x)
@@ -69,7 +100,7 @@ def recommend(p: dict) -> dict:
     min_games = max(1, int(p.get("min_games", 3)))
     with_meta = bool(p.get("with_meta", True))
 
-    with LOCK:   # только_played=False: нужны и герои из пула, и мета-кандидаты
+    with LOCK:
         res = ANALYZER.get_recommendations(acc_id, role, enemies, allies, matches, min_games, False, ally_roles)
     picks = select_recommendations(res.candidates, n_pool=2 if with_meta else 3, n_total=3, min_games=min_games)
     cands = []
@@ -131,10 +162,10 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, {"error": f"{e}{hint}"})
         except (ValueError, KeyError, TypeError) as e:
             self._json(400, {"error": f"Некорректный запрос: {e}"})
-        except Exception as e:  # последняя страховка, чтобы сервер не падал
+        except Exception as e:
             self._json(500, {"error": f"Внутренняя ошибка: {e}"})
 
-    def log_message(self, *args):   # тишина в консоли
+    def log_message(self, *args):
         pass
 
 
@@ -147,15 +178,15 @@ def main():
         print(f"❌ Не удалось связаться с OpenDota: {e}")
         return
 
-    # Render передает порт в переменной PORT, по умолчанию берем 8000
+    # Запускаем бота в отдельном фоновом потоке
+    threading.Thread(target=run_bot, daemon=True).start()
+
     port = int(os.environ.get("PORT", 8000))
-    # Важно: 0.0.0.0 вместо 127.0.0.1, чтобы Render смог открыть доступ к сайту
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
     
     url = f"http://127.0.0.1:{port}"
     print(f"Готово. Сервер запущен на порту {port}")
     
-    # Автооткрытие браузера запускаем только если это локальный запуск (нет переменной RENDER)
     if "RENDER" not in os.environ:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
         
@@ -163,5 +194,7 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nОстановлено.")
+
+
 if __name__ == "__main__":
     main()

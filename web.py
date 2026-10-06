@@ -163,3 +163,5 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nОстановлено.")
+if __name__ == "__main__":
+    main()
